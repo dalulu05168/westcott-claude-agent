@@ -812,55 +812,50 @@ try {
   assert.equal(badWeekend.result.isError, true);
 
   const sceneOf = (count, first = news) => [first, ...Array.from({ length: count - 1 }, () => '12男：\n我先等收盘。')].join('\n\n');
-  const [maximumMorning, maximumEvening, minimumAfternoon, maximumAfternoon, shortMorning,
-    fewAfternoon, manyAfternoon, manyEvening, excerptCount, emptyLabel, manyMorning, shortEvening,
-    minimumMorning, partialMorning] = run([
-    call(1, 'validate_scene_count', { session: 'morning', body: sceneOf(35) }),
-    call(2, 'validate_scene_count', { session: 'evening', body: sceneOf(35, teacher) }),
-    call(3, 'validate_scene_count', { session: 'afternoon', body: sceneOf(30) }),
-    call(4, 'validate_scene_count', { session: 'afternoon', body: sceneOf(34) }),
-    call(5, 'validate_scene_count', { session: 'morning', body: sceneOf(31) }),
-    call(6, 'validate_scene_count', { session: 'afternoon', body: sceneOf(29) }),
-    call(7, 'validate_scene_count', { session: 'afternoon', body: sceneOf(35) }),
-    call(8, 'validate_scene_count', { session: 'evening', body: sceneOf(36, teacher) }),
-    call(9, 'validate_scene_count', { session: 'evening', scope: 'excerpt', body: teacher }),
-    call(10, 'validate_scene_count', { session: 'morning', body: sceneOf(32) + '\n\n12男：' }),
-    call(11, 'validate_scene_count', { session: 'morning', body: sceneOf(36) }),
-    call(12, 'validate_scene_count', { session: 'evening', body: teacher }),
-    call(13, 'validate_scene_count', { session: 'morning', body: sceneOf(32) }),
-    call(14, 'validate_scene_count', { session: 'morning', scope: 'partial', body: sceneOf(4) }),
-  ]);
-  for (const result of [minimumMorning, maximumMorning, maximumEvening, minimumAfternoon, maximumAfternoon, partialMorning, shortEvening, excerptCount]) {
-    assert.equal(decode(result).passed, true);
+  const countCase = (session, count, extra = {}, first = news) => ({ session, count, extra, first });
+  const countCases = [
+    // 整场：上午 09:00–12:00 = 30 条，下午 14:00–17:30 = 35 条，晚间 19:30–22:30 = 30 条，各 ±2。
+    [countCase('morning', 28), true], [countCase('morning', 30), true], [countCase('morning', 32), true],
+    [countCase('morning', 27), false], [countCase('morning', 33), false],
+    [countCase('afternoon', 33), true], [countCase('afternoon', 37), true],
+    [countCase('afternoon', 32), false], [countCase('afternoon', 38), false],
+    [countCase('evening', 30, {}, teacher), true], [countCase('evening', 33, {}, teacher), false],
+    // 节选按起止时刻：09:00–10:20 = 80 分钟 ≈ 13 条；14:00–16:30 = 150 分钟 = 25 条。
+    ...[11, 13, 15].map((n) => [countCase('morning', n, { scope: 'excerpt', start: '09:00', end: '10:20' }), true]),
+    ...[10, 16].map((n) => [countCase('morning', n, { scope: 'excerpt', start: '09:00', end: '10:20' }), false]),
+    [countCase('afternoon', 25, { scope: 'excerpt', start: '14:00', end: '16:30' }), true],
+    [countCase('afternoon', 25, { scope: 'excerpt' }), false],
+    [countCase('morning', 4, { scope: 'partial' }), true],
+    [countCase('afternoon', 1, { scope: 'partial' }), true],
+  ];
+  const countResults = run(countCases.map(([c], index) => call(index + 1, 'validate_scene_count', {
+    session: c.session, body: sceneOf(c.count, c.first), ...c.extra,
+  }))).map(decode);
+  for (const [index, [c, expected]] of countCases.entries()) {
+    assert.equal(countResults[index].passed, expected, `${c.session} ${c.count} 条 ${JSON.stringify(c.extra)}`);
+    assert.equal(countResults[index].count, c.count);
   }
-  for (const result of [shortMorning, manyMorning, fewAfternoon, manyAfternoon, manyEvening, emptyLabel]) {
-    assert.equal(decode(result).passed, false);
+  assert.deepEqual([countResults[1].expected, countResults[1].minimum, countResults[1].maximum], [30, 28, 32]);
+  assert.equal(countResults[5].expected, 35);
+  assert.equal(countResults[9].expected, 30);
+  assert.equal(countResults[12].expected, 13);
+  assert.equal(countResults[12].minutes, 80);
+  assert.equal(countResults[16].expected, 25);
+  assert.ok(countResults[17].issues.some((issue) => issue.message.includes('节选须给出起止时刻')));
+  assert.equal(countResults[18].applied, false);
+  assert.equal(countResults[19].applied, false);
+  const badWindows = run([
+    call(1, 'validate_scene_count', { session: 'morning', scope: 'excerpt', start: '09:00', end: '08:00', body: sceneOf(5) }),
+    call(2, 'validate_scene_count', { session: 'afternoon', scope: 'excerpt', start: '16:00', end: '15:00', body: sceneOf(5) }),
+    call(3, 'validate_scene_count', { session: 'morning', scope: 'excerpt', start: '08:00', end: '09:30', body: sceneOf(5) }),
+  ]).map(decode);
+  for (const report of badWindows) {
+    assert.equal(report.passed, false);
+    assert.ok(report.issues.some((issue) => issue.message.includes('起止时刻须在')), JSON.stringify(report.issues));
   }
-  assert.equal(decode(maximumMorning).count, 35);
-  assert.equal(decode(shortMorning).count, 31);
-  assert.deepEqual([decode(minimumMorning).minimum, decode(minimumMorning).maximum], [32, 35]);
-  assert.equal(decode(excerptCount).count, 1);
-  assert.equal(decode(excerptCount).applied, false);
-  const afternoonCounts = [29, 30, 32, 34, 35];
-  const [shortAfternoon, ...scoredAfternoonExcerpts] = run([
-    call(1, 'validate_scene_count', { session: 'afternoon', scope: 'partial', body: news }),
-    ...afternoonCounts.map((count, index) => call(index + 2, 'validate_scene_count', {
-      session: 'afternoon', scope: 'excerpt', body: sceneOf(count),
-    })),
-  ]);
-  const partial = decode(shortAfternoon);
-  assert.equal(partial.passed, true);
-  assert.equal(partial.applied, false);
-  assert.equal(partial.count, 1);
-  for (const [index, result] of scoredAfternoonExcerpts.entries()) {
-    const count = afternoonCounts[index];
-    const report = decode(result);
-    assert.equal(report.count, count);
-    assert.equal(report.passed, count >= 30 && count <= 34);
-    assert.equal(report.applied, true);
-    assert.deepEqual([report.minimum, report.maximum], [30, 34]);
-  }
-  assert.equal(decode(emptyLabel).count, 32);
+  const emptyLabel = decode(run([call(1, 'validate_scene_count', { session: 'morning', body: sceneOf(30) + '\n\n12男：' })])[0]);
+  assert.equal(emptyLabel.passed, false);
+  assert.equal(emptyLabel.count, 30);
 
   const marker = '【教学模拟｜非真实成员发言或交易记录】';
   const afternoonHello = '===== 资讯助理 =====\n\n🌤 大家下午好！欢迎回到 ELLERY WESTCOTT 社群！';
@@ -888,7 +883,7 @@ try {
   const roleResults = run([
     call(1, 'validate_scene_count', { session: 'morning', body: teacher }),
     call(2, 'validate_scene_count', { session: 'afternoon', body: teacher, scope: 'partial' }),
-    call(3, 'validate_scene_count', { session: 'evening', body: teacher }),
+    call(3, 'validate_scene_count', { session: 'evening', body: teacher, scope: 'partial' }),
     call(4, 'validate_scene_count', { session: 'evening', body: adviser }),
     call(5, 'validate_scene_count', { session: 'evening', body: '12女：我先看。' }),
     call(6, 'validate_scene_count', { session: 'evening', body: '51男：我先看。' }),

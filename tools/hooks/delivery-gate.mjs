@@ -12,7 +12,8 @@ const SKIP_TOOLS = new Set([
   `${STATE}import_mobile_handoff`,
 ]);
 const SKIP_PROMPT = /只读|不用审|不审稿|免审|入库样稿/;
-const FULL_SCENE_MIN_SPEECHES = 20;
+// 达到最短整场（上午、晚间 30 条）的一半即要求条数校验。
+const FULL_SCENE_MIN_SPEECHES = 15;
 const CODE_BLOCK = /```text\r?\n([\s\S]*?)\r?\n```/g;
 const HARNESS_MESSAGE = /^(?:Stop hook feedback|<task-notification>|<side-sessions-event>|<ci-monitor-event>)/i;
 const ROLE_LINE =/^(?:={3,}\s*\S.*?\s*={3,}|[^\s：:]{1,24}[：:])$/;
@@ -83,7 +84,7 @@ export function evaluate(entries, { stopHookActive = false } = {}) {
   }
   if (!called('validate_whatsapp_voice').length) missing.push('未运行 validate_whatsapp_voice 检查块内台词');
   if (countSpeeches(delivered) >= FULL_SCENE_MIN_SPEECHES && !called('validate_scene_count').length) {
-    missing.push('整场篇幅的群稿未运行 validate_scene_count');
+    missing.push('15 条及以上的群稿未运行 validate_scene_count（节选须传 start、end）');
   }
   const reviewed = tools.some(t => t.name === 'Agent' && t.input.subagent_type === 'westcott-editor');
   if (!reviewed) missing.push('未调用 westcott-editor 独立审稿');

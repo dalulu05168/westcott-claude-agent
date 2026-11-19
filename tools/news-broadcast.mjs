@@ -1,7 +1,7 @@
 import { getBlocks } from './speech-format.mjs';
 import { isWeekday, validateMarketTimestamp } from './market-time.mjs';
 import { eventImageCheckSchema, eventImageIssue, publicWebUrl } from './news-image.mjs';
-import { allowedMemberField, allowedStaffField, sceneRoleIssues, sceneScopeField, sessionLimits } from './scene-rules.mjs';
+import { allowedMemberField, allowedStaffField, clockField, expectedRange, sceneRoleIssues, sceneScopeField, sessionWindows } from './scene-rules.mjs';
 
 const entryTypes = ['news', 'us_overnight_major', 'us_previous_session_indicators'];
 const areas = ['romania', 'us', 'other'];
@@ -34,7 +34,7 @@ function previousUsSession(date, closures) {
 
 export function createNewsBroadcastTools({ text, schema, dateField, validateDate, getHandoff }) {
   const timestamp = text(35);
-  const sessionField = choice(Object.keys(sessionLimits));
+  const sessionField = choice(Object.keys(sessionWindows));
   const entrySchema = schema({
     kind: choice(entryTypes), area: choice(areas), country: text(24), title: text(300),
     published_at: timestamp, data_asof: timestamp, image_url: text(2000), image_source_url: text(2000),
@@ -56,9 +56,10 @@ export function createNewsBroadcastTools({ text, schema, dateField, validateDate
     },
     {
       name: 'validate_scene_count',
-      description: 'Check labelled messages and scene roles. Full mornings use 32–35; full evenings allow up to 35; afternoon full scenes and excerpts use 30–34. Use partial for localized text. David (teacher) has 0 messages in morning and afternoon, even with allowed_staff. Use allowed_member_ids for explicitly named archived members in a local edit.',
+      description: 'Check labelled messages and scene roles. Counts follow one message per 6 minutes with ±2 tolerance: full morning 09:00–12:00 = 30, afternoon 14:00–17:30 = 35, evening (incl. Sunday review) 19:30–22:30 = 30. For an excerpt or a scene stopped at a node, pass scope excerpt with start and end (HH:MM, Bucharest) to count that span. partial only reports the count. David (teacher) has 0 messages in morning and afternoon, even with allowed_staff. Use allowed_member_ids for explicitly named archived members in a local edit.',
       inputSchema: schema({ session: sessionField, body: text(160000),
-        scope: sceneScopeField, allowed_staff: allowedStaffField, allowed_member_ids: allowedMemberField }, ['session', 'body']),
+        scope: sceneScopeField, start: clockField, end: clockField,
+        allowed_staff: allowedStaffField, allowed_member_ids: allowedMemberField }, ['session', 'body']),
       annotations: readOnly,
     },
   ];
@@ -144,8 +145,7 @@ export function createNewsBroadcastTools({ text, schema, dateField, validateDate
         expected_news: issues.length ? [] : expectedNews };
     },
 
-    async validate_scene_count({ session, body, scope = 'full', allowed_staff, allowed_member_ids }) {
-      const [minimum, maximum] = sessionLimits[session];
+    async validate_scene_count({ session, body, scope = 'full', start, end, allowed_staff, allowed_member_ids }) {
       const blocks = getBlocks(body);
       const empty = blocks.filter((block) => !block.lines.some((line) => line.trim()));
       const count = blocks.length - empty.length;
@@ -154,13 +154,25 @@ export function createNewsBroadcastTools({ text, schema, dateField, validateDate
         ...sceneRoleIssues(blocks, { session, allowed_staff, allowed_member_ids, scope }),
       ];
       if (!blocks.length) issues.push({ line: 1, message: '找不到带标记的发言。' });
-      const applied = scope === 'full' || (session === 'afternoon' && scope === 'excerpt');
-      if (applied && (count < minimum || count > maximum)) {
-        const label = scope === 'excerpt' ? '下午场节选' : '完整场次';
-        const expected = minimum ? `应为 ${minimum}–${maximum} 条` : `最多 ${maximum} 条`;
-        issues.push({ message: `${label}${expected}，当前为 ${count} 条。` });
+      // 条数按每 6 分钟一条：整场用场次窗口，节选用给定起止时刻，partial 只报数。
+      let range = null;
+      if (scope === 'excerpt' && (!start || !end)) {
+        issues.push({ message: '节选须给出起止时刻（start、end），才能按每 6 分钟一条核对条数。' });
+      } else if (scope !== 'partial') {
+        try {
+          range = expectedRange(session, start, end);
+        } catch (error) {
+          issues.push({ message: error.message });
+        }
       }
-      return { passed: issues.length === 0, session, scope, applied, count, minimum, maximum, issues };
+      const applied = Boolean(range);
+      if (range && (count < range.minimum || count > range.maximum)) {
+        const label = scope === 'excerpt' ? `${range.start}–${range.end} 节选` : '完整场次';
+        issues.push({ message: `${label}按每 6 分钟一条应约 ${range.expected} 条（${range.minimum}–${range.maximum}），当前为 ${count} 条。` });
+      }
+      return { passed: issues.length === 0, session, scope, applied, count,
+        start: range?.start ?? start, end: range?.end ?? end, minutes: range?.minutes,
+        expected: range?.expected, minimum: range?.minimum, maximum: range?.maximum, issues };
     },
   };
   return { definitions, handlers };

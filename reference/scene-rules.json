@@ -1,9 +1,11 @@
 {
-  "message_limits": {
-    "morning": [32, 35],
-    "afternoon": [30, 34],
-    "evening": [0, 35]
+  "session_windows": {
+    "morning": ["09:00", "12:00"],
+    "afternoon": ["14:00", "17:30"],
+    "evening": ["19:30", "22:30"]
   },
+  "minutes_per_message": 6,
+  "tolerance": 2,
   "staff_by_session": {
     "morning": ["assistant"],
     "afternoon": ["assistant"],

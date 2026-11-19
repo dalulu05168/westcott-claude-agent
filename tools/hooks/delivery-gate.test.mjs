@@ -66,6 +66,12 @@ t('整场篇幅缺条数校验时阻止', () => {
   const ok = evaluate([user('写下午场'), ...fullChecks(big), use(`${S}validate_scene_count`, { body: big }), say(`\`\`\`text\n${big}\n\`\`\``)]);
   assert.equal(ok.action, 'allow');
 });
+t('15 条局部稿缺条数校验时阻止', () => {
+  const mid = Array.from({ length: 15 }, (_, i) => `${String(i + 1).padStart(2, '0')}男：\n第${i + 1}条`).join('\n');
+  const r = evaluate([user('写到 10:30 停'), ...fullChecks(mid), say(`\`\`\`text\n${mid}\n\`\`\``)]);
+  assert.equal(r.action, 'block');
+  assert.match(r.reason, /validate_scene_count/);
+});
 t('入库样稿与只读请求放行', () => {
   assert.equal(evaluate([user('入库样稿 14男：昨天跌了'), say(block)]).action, 'allow');
   assert.equal(evaluate([user('只读，贴出原文'), say(block)]).action, 'allow');
