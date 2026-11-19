@@ -1,0 +1,4 @@
+.westcott-state/
+.claude/settings.local.json
+.env
+.westcott-test-backup/

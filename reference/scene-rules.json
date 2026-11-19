@@ -1,0 +1,17 @@
+{
+  "message_limits": {
+    "morning": [32, 35],
+    "afternoon": [30, 34],
+    "evening": [0, 35]
+  },
+  "staff_by_session": {
+    "morning": ["assistant"],
+    "afternoon": ["assistant"],
+    "evening": ["assistant", "teacher"]
+  },
+  "staff_never_by_session": {
+    "morning": ["teacher"],
+    "afternoon": ["teacher"]
+  },
+  "default_cast_limit": 50
+}

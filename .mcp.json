@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "westcott-state": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${CLAUDE_PROJECT_DIR:-.}/tools/course-state.mjs"
+      ]
+    },
+    "docs-readonly": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${CLAUDE_PROJECT_DIR:-.}/tools/docs-readonly/src/server.mjs"
+      ],
+      "env": {
+        "DOCS_READONLY_CREDENTIALS": "${DOCS_READONLY_CREDENTIALS:-C:/Users/pipi0/AppData/Local/Westcott/google-docs-viewer.json}"
+      }
+    }
+  }
+}
