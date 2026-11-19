@@ -66,6 +66,16 @@ t('整场篇幅缺条数校验时阻止', () => {
   const ok = evaluate([user('写下午场'), ...fullChecks(big), use(`${S}validate_scene_count`, { body: big }), say(`\`\`\`text\n${big}\n\`\`\``)]);
   assert.equal(ok.action, 'allow');
 });
+t('上午写到 10:20 停点的 13 条稿缺条数校验时阻止', () => {
+  const stop = Array.from({ length: 13 }, (_, i) => `${String(i + 1).padStart(2, '0')}男：\n第${i + 1}条`).join('\n');
+  const r = evaluate([user('写上午场到 10:20 核图节点'), ...fullChecks(stop), say(`\`\`\`text\n${stop}\n\`\`\``)]);
+  assert.equal(r.action, 'block');
+  assert.match(r.reason, /validate_scene_count/);
+});
+t('9 条以下的短片段不要求条数校验', () => {
+  const short = Array.from({ length: 9 }, (_, i) => `${String(i + 1).padStart(2, '0')}男：\n第${i + 1}条`).join('\n');
+  assert.equal(evaluate([user('改这几条'), ...fullChecks(short), say(`\`\`\`text\n${short}\n\`\`\``)]).action, 'allow');
+});
 t('15 条局部稿缺条数校验时阻止', () => {
   const mid = Array.from({ length: 15 }, (_, i) => `${String(i + 1).padStart(2, '0')}男：\n第${i + 1}条`).join('\n');
   const r = evaluate([user('写到 10:30 停'), ...fullChecks(mid), say(`\`\`\`text\n${mid}\n\`\`\``)]);

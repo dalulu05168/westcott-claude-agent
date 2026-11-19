@@ -38,4 +38,4 @@ skills:
 | westcott-editor 审稿 | 独立审稿 | 用户要求、实际承接段、核查结论；晚课另加 reference/evening/review-checklist.md |
 | westcott-courseware 课件 | 课件、形态图、Logo、练习 | 已采用课稿、单课方案里的图表要求、reference/courseware.md |
 
-晚课的排课、四阶段路线、单课方案和进度登记由总导演自己按 reference/evening/course-route.md 完成，定好后再派编剧和课件。
+晚课的排课、四阶段路线、单课方案和进度登记由总导演自己按 reference/evening/course-route.md 完成，定好后再派编剧和课件。不调用旧版 westcott-efficient-workflow 技能，即使它出现在可用技能列表里；它的规则已按职责并入上表资料。

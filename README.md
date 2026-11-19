@@ -126,7 +126,7 @@
 
 - 对实际贴出的正文运行 `validate_speech_format`，且校验正文与贴出版本一致；
 - 运行 `validate_whatsapp_voice`；
-- 15 条及以上的群稿运行 `validate_scene_count`（节选传起止时刻）；
+- 10 条及以上的群稿运行 `validate_scene_count`（节选传起止时刻）；
 - 调用 `westcott-editor` 独立审稿。
 
 缺项时阻止结束，把缺项交回总导演补做；同一轮第二次触发只向你显示提醒并放行，避免工具不可用时卡死。用户消息里含「只读」「不审稿」「入库样稿」，或本轮是手机稿预览、导入时不拦截。修改 settings 后需重开项目会话才生效。

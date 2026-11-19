@@ -20,7 +20,7 @@
 | 审稿 `westcott-editor` | 独立审稿 | [剧情审稿](.claude/skills/westcott-review/SKILL.md)、[晚课验收清单](reference/evening/review-checklist.md) |
 | 课件 `westcott-courseware` | 课件、形态图、Logo、练习 | [课件规范](reference/courseware.md)、[课件生成说明](reference/lesson-kit.md) |
 
-晚课方法、课程路线、审稿清单和课件规范来自旧版 `westcott-efficient-workflow` 2.3.2，于 2026-11-19 并入；与本文件冲突时以本文件为准。
+晚课方法、课程路线、审稿清单和课件规范来自旧版 `westcott-efficient-workflow` 2.3.2，于 2026-11-19 并入；与本文件冲突时以本文件为准。本项目不再调用旧版 `westcott-efficient-workflow` 技能（包括机器上安装的全局版本），它的旧条数和代码块首行模拟标识等规则已作废，方法一律以上表的归属资料为准。
 
 ### 三场角色、运营顺序与红线
 
@@ -74,7 +74,7 @@
 
 新闻及时点、配图按 reference/news-broadcast-policy.md 执行。群稿条数和人员默认范围以 reference/scene-rules.json 为准。开盘、推票和活动读取 reference/operations.md 及当日已确认的安排。
 
-条数按每 6 分钟一条计算，整场上午约 30、下午约 35、晚间约 30 条（±2），停点和节选按实际起止时刻算，细则见 [运营规则](reference/operations.md#场次时间与条数)。提交整场或节选时调用 `validate_scene_count` 检查。每条保留独立作用，删掉重复表态、复述和无推进的寒暄。只改几条、续到停点或等待材料时，按用户指定范围交付，用 `scope: partial` 查看本段数量，写到停点用 `scope: excerpt` 并传起止时刻。
+条数按每 6 分钟一条计算，整场上午约 30、下午约 35、晚间约 30 条（±2），停点和节选按实际起止时刻算，细则见 [运营规则](reference/operations.md#场次时间与条数)。提交整场或节选时调用 `validate_scene_count` 检查。每条保留独立作用，删掉重复表态、复述和无推进的寒暄。按用户指定范围交付：只改几条用 `scope: partial` 只看数量；续写、写到停点或等待材料时用 `scope: excerpt` 并传实际起止时刻 `start`、`end`；分段写完合成整场后再用 `scope: full` 复验一次。
 
 
 ### 剧本审稿与正文交付
