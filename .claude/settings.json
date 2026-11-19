@@ -9,6 +9,13 @@
             "command": "node \"$CLAUDE_PROJECT_DIR/tools/hooks/delivery-gate.mjs\"",
             "timeout": 30,
             "statusMessage": "交稿把关核对中"
+          },
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "node \"$CLAUDE_PROJECT_DIR/tools/backup-state.mjs\" --quiet",
+            "timeout": 60,
+            "async": true
           }
         ]
       }
