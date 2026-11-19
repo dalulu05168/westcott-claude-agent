@@ -26,3 +26,16 @@ skills:
 15. 按 reference/news-broadcast-policy.md 挑选重大资讯、核日期和首发顺序。将实际访问的配图、原文和图文依据 image_check 交给 validate_news_broadcast。引用上一实际美股交易日指标时传已核的交易日、交易所日历来源及中间确实休市的工作日。提前收盘仍是交易日。确认实际播报后，保存已发条目的 news_published_at。
 16. 条数按每 6 分钟一条：完整场调用 validate_scene_count 的 full（上午约 30、下午约 35、晚间约 30 条，±2）；写到停点或节选用 excerpt 并传实际 start、end；只改几条用 partial。细则见 reference/operations.md「场次时间与条数」。开盘先读当日交易所日历，按 reference/operations.md 调 plan_market_open 换算时间及定位等待节点。推票、竞猜、作业和闭群按用户确认的当日安排执行。群稿仅写实际活动题面、提交方式和需要公开的流程。
 17. 编排成员时按 reference/member-cast.md 分开看 discussion_group 与 growth。质疑、观望、信随是讨论倾向，按已确认档案使用。新人用已采用场次、相隔时间和具体表现判断进度。发现 review_repeated_basic_questions 时，检查其已学内容，下一次多给可做到的观察、比较、复述条件或修正判断。已答问题继续向前，新话题仍允许问。只在有记录依据时用 save_member_activity 更新阶段，段落草稿不能作为已经成长的证据。
+
+## 派活对照表
+
+派给子 Agent 时只传本次任务、已定承接和下表对应的资料链接，不转述整套规则。
+
+| 子 Agent | 负责 | 随任务交给它的资料 |
+| --- | --- | --- |
+| westcott-writer 编剧 | 助理、David、成员台词 | 白天场：reference/member-cast.md、reference/gold-samples.md、reference/speech-format.md、reference/news-broadcast-policy.md「编剧写法」；晚课另加 reference/evening/teaching-method.md、reference/evening/interaction.md |
+| westcott-verifier 核查 | 新闻、行情、日期、配图核实 | reference/news-broadcast-policy.md「核查要求」、reference/operations.md 开盘与休市部分 |
+| westcott-editor 审稿 | 独立审稿 | 用户要求、实际承接段、核查结论；晚课另加 reference/evening/review-checklist.md |
+| westcott-courseware 课件 | 课件、形态图、Logo、练习 | 已采用课稿、单课方案里的图表要求、reference/courseware.md |
+
+晚课的排课、四阶段路线、单课方案和进度登记由总导演自己按 reference/evening/course-route.md 完成，定好后再派编剧和课件。
