@@ -119,6 +119,17 @@
 | 本地 MCP | 管理任务线、采用记录、场内断点、场次交接、财经核查、手机稿和成员档案，并生成课件。 |
 | Skills | 跨晚课程任务、课堂写作、财经核查、剧情审稿四项规则。 |
 
+## 交稿把关
+
+`.claude/settings.json` 注册了一个 Stop hook（[delivery-gate.mjs](tools/hooks/delivery-gate.mjs)）。某一轮贴出 ```` ```text ```` 剧本代码块时，它核对同一轮是否已完成：
+
+- 对实际贴出的正文运行 `validate_speech_format`，且校验正文与贴出版本一致；
+- 运行 `validate_whatsapp_voice`；
+- 20 条及以上的整场稿运行 `validate_scene_count`；
+- 调用 `westcott-editor` 独立审稿。
+
+缺项时阻止结束，把缺项交回总导演补做；同一轮第二次触发只向你显示提醒并放行，避免工具不可用时卡死。用户消息里含「只读」「不审稿」「入库样稿」，或本轮是手机稿预览、导入时不拦截。修改 settings 后需重开项目会话才生效。
+
 ## 本地检查
 
-在该目录 PowerShell 运行 `node tools/self-test.mjs`。它使用临时目录和独立进程验证 26 个 MCP 工具，覆盖旧记录、课程完成、跨场 `final` 接力、样稿入库、场次和手机交接、局部修改范围、成员、新闻顺序、配图、开盘时区及休市处理。Claude Code 双窗口、`/compact`、连接器授权和子 Agent 实际运行须在 Windows 账号环境验收。
+在该目录 PowerShell 运行 `node tools/self-test.mjs`。它使用临时目录和独立进程验证 26 个 MCP 工具，覆盖旧记录、课程完成、跨场 `final` 接力、样稿入库、场次和手机交接、局部修改范围、成员、新闻顺序、配图、开盘时区及休市处理。Claude Code 双窗口、`/compact`、连接器授权和子 Agent 实际运行须在 Windows 账号环境验收。交稿把关另跑 `node tools/hooks/delivery-gate.test.mjs`。
