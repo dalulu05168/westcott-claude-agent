@@ -65,6 +65,8 @@
 所以，学习技术形态有两个目的：第一，通过价格和成交量，观察机构等大资金可能留下的交易痕迹，理解它们可能的操作方式；第二，结合后续走势验证这些线索，寻找更合理的交易时机，而不是看到上涨就盲目跟进。
 ~~~
 
+上面这段讲到机构视角，只适合课程路线中后期；阶段一、二照格式写，不照搬机构这层理念，见 [理念递进](evening/teaching-method.md#理念递进)。
+
 ## 使用格式检查
 
 把要交付的正文传给 `validate_speech_format`。独立新闻选 `news`，独立先生发言选 `teacher`，新写群聊选 `mixed`，同时传 `session`、布加勒斯特 `date` 及 `scope`。整场用 `full`；中段和待核停点按实际交付范围传 `excerpt` 或 `partial`。有明确闭群或等待要求时传 `close: required` 或 `close: forbidden`。用户明确安排特殊出场时，才在格式和条数校验传 `allowed_staff`（`teacher` 或 `adviser`）。David 在上午和下午场一律 0 条，传了 `allowed_staff: ['teacher']` 也判不通过；他只在晚间授课和周日 19:30 复盘出场。
