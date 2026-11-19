@@ -8,6 +8,20 @@
 
 上午、下午和晚间开群、续场、场次交接时，先查本场之前已确认发生的群内事项。把已发资讯、待答问题、竞猜和练习的状态传给编剧。草稿、已采用课稿与实际群发属于不同状态。财经核查记录保留来源、发布时间、数据截点和盘段。需要最新数据时重新核查已保存的快照。
 
+### 五个 Agent 的分工
+
+总导演是主 Agent，其余四个是子 Agent。每条方法规则只写在下表的归属文件里；总导演派活时把对应链接交给子 Agent，派活细则见 [总导演说明](.claude/agents/westcott-director.md#派活对照表)。
+
+| Agent | 负责 | 归属资料 |
+| --- | --- | --- |
+| 总导演 `westcott-director` | 定范围、排课、选角、派活、收稿交付、状态登记 | 本文件、[运营规则](reference/operations.md)、[晚课课程路线](reference/evening/course-route.md)、[按任务取材](reference/writing-context.md) |
+| 编剧 `westcott-writer` | 助理、David、成员台词 | [写作主干](.claude/skills/westcott-script/SKILL.md)、[成员口吻与出场](reference/member-cast.md)、[发言规范](reference/speech-format.md)、[授课方法](reference/evening/teaching-method.md)、[课堂互动](reference/evening/interaction.md) |
+| 核查 `westcott-verifier` | 新闻、行情、日期、配图核实 | [新闻规则「核查要求」](reference/news-broadcast-policy.md)、[财经核查](.claude/skills/westcott-facts/SKILL.md) |
+| 审稿 `westcott-editor` | 独立审稿 | [剧情审稿](.claude/skills/westcott-review/SKILL.md)、[晚课验收清单](reference/evening/review-checklist.md) |
+| 课件 `westcott-courseware` | 课件、形态图、Logo、练习 | [课件规范](reference/courseware.md)、[课件生成说明](reference/lesson-kit.md) |
+
+晚课方法、课程路线、审稿清单和课件规范来自旧版 `westcott-efficient-workflow` 2.3.2，于 2026-11-19 并入；与本文件冲突时以本文件为准。
+
 ### 三场角色、运营顺序与红线
 
 上午、下午只安排资讯助理 Ana Maria 与成员出场，David 先生在上午、下午场一律 0 条，只在晚间授课或周日复盘出现。Gabriela 默认接收、核对并按已确认安排通知竞猜或练习结果。群内题面和提醒由资讯助理发。除 David 的白天限制外，只有用户当次明确指定才调整出场。成员名册、出场人数和罗马尼亚 WhatsApp 群的说话方式见 [成员口吻与出场](reference/member-cast.md)，认可的口吻范文见 [金牌样稿库](reference/gold-samples.md)。
@@ -56,13 +70,7 @@
 
 ### 写作主干（沿用旧版 westcott-efficient-workflow）
 
-写任何台词都以 [.claude/skills/westcott-script/SKILL.md](.claude/skills/westcott-script/SKILL.md) 为准，它是旧版 2.3.2 的写作提示、人物互动逻辑和样稿。要点：
-
-- 动笔前导演先定戏：钩子、至少一处成员之间的冲突或追问、一两位成员的人物线、每段不同的回应节奏。不输出给用户。
-- 场景不走固定循环：不写「一条新闻 → 一组成员围着聊 → 下一条新闻」。成员先提起别的事、接着聊上一条、回头答旧问题、只回一个表情；助理偶尔简短回答成员。写完连读，循环和排队都要重排。
-- 成员像罗马尼亚人在 WhatsApp 股票群里聊天：默认一句短话，成员之间不讲课，追问实际的事，爱较真、爱拿定存国债派息来比，质疑多于附和，表情按人。认可的对照表在 [金牌样稿库](reference/gold-samples.md)。
-- 资讯助理像群里的资讯助理说话，不写核查报告腔；新闻是短主题、核心事实、对罗马尼亚的影响、「接下来，我们重点关注……」。David 两段：先回应眼前的疑问，再讲道理和怎么验证，用专业术语，不讲空话。
-- 发言格式和新闻配图见 reference/speech-format.md。
+写任何台词都以 [.claude/skills/westcott-script/SKILL.md](.claude/skills/westcott-script/SKILL.md) 为准，它是旧版 2.3.2 的写作提示、人物互动逻辑和样稿：动笔前先定钩子、冲突、人物线和节奏；场景不走「一条新闻配一组成员」的固定循环；成员像罗马尼亚散户在 WhatsApp 群里说话；助理不写核查报告腔；David 两段讲清判断和验证。晚课另按 [授课方法](reference/evening/teaching-method.md) 和 [课堂互动](reference/evening/interaction.md)，发言格式和新闻配图见 [发言规范](reference/speech-format.md)。
 
 新闻及时点、配图按 reference/news-broadcast-policy.md 执行。群稿条数和人员默认范围以 reference/scene-rules.json 为准。开盘、推票和活动读取 reference/operations.md 及当日已确认的安排。
 

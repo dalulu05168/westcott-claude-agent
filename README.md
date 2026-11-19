@@ -111,10 +111,11 @@
 
 | 项目 | 工作 |
 | --- | --- |
-| 总导演 | 自己确定承接、推进点、剧情顺序和停点，收编剧稿及核查结果并交付。 |
-| 编剧子 Agent | 写老师和成员来回。课程知识和成长任务在讲解或互动中一起推进。 |
+| 总导演 | 自己确定承接、推进点、剧情顺序和停点，按 `reference/evening/course-route.md` 排课，收各子 Agent 的稿件和结果并交付。 |
+| 编剧子 Agent | 写老师和成员来回。晚课按 `reference/evening/teaching-method.md`（九步、五步）和 `interaction.md`（六种作用）推进课程知识和成长任务。 |
 | 事实核查子 Agent | 用 WebSearch 和 WebFetch 验证公告、行情口径和发布时间。有实时事实才需要调用。 |
-| 剧情审稿子 Agent | 检查跨场承接、任务推进、人物互动、后续边界和事实表达。导演根据问题改稿并复检。 |
+| 剧情审稿子 Agent | 检查跨场承接、任务推进、人物互动、后续边界和事实表达；晚课按 `reference/evening/review-checklist.md` 逐项验收。导演根据问题改稿并复检。 |
+| 课件子 Agent | 按 `reference/courseware.md` 为已采用课稿出课件、形态图组和练习，交回图号表与制作状态。 |
 | 文件与内容工具 | 本地 Read、Glob、Grep；Google Drive 已授权时读取原稿。 |
 | 本地 MCP | 管理任务线、采用记录、场内断点、场次交接、财经核查、手机稿和成员档案，并生成课件。 |
 | Skills | 跨晚课程任务、课堂写作、财经核查、剧情审稿四项规则。 |
@@ -125,11 +126,25 @@
 
 - 对实际贴出的正文运行 `validate_speech_format`，且校验正文与贴出版本一致；
 - 运行 `validate_whatsapp_voice`；
-- 20 条及以上的整场稿运行 `validate_scene_count`；
+- 15 条及以上的群稿运行 `validate_scene_count`（节选传起止时刻）；
 - 调用 `westcott-editor` 独立审稿。
 
 缺项时阻止结束，把缺项交回总导演补做；同一轮第二次触发只向你显示提醒并放行，避免工具不可用时卡死。用户消息里含「只读」「不审稿」「入库样稿」，或本轮是手机稿预览、导入时不拦截。修改 settings 后需重开项目会话才生效。
 
+## 状态备份与恢复
+
+`.westcott-state` 不进 git。`.claude/settings.json` 里的后台 Stop hook 每轮结束后运行 [backup-state.mjs](tools/backup-state.mjs)，内容有变化才生成快照，默认存到 `%LOCALAPPDATA%\Westcott\state-backups`，保留最近 60 份。每份快照带校验清单。要放进 Google Drive 等同步文件夹，把环境变量 `WESTCOTT_BACKUP_DIR` 设为该文件夹的绝对路径。
+
+```powershell
+node tools/backup-state.mjs --list
+```
+
+```powershell
+node tools/backup-state.mjs --restore latest
+```
+
+上面第二条只预览。确认后先关闭正在运行的 Westcott 会话，再加 `--yes` 执行；也可把 `latest` 换成列表里的快照名。恢复前会先把当前状态另存为 `pre-restore` 快照，恢复错了还能退回。
+
 ## 本地检查
 
-在该目录 PowerShell 运行 `node tools/self-test.mjs`。它使用临时目录和独立进程验证 26 个 MCP 工具，覆盖旧记录、课程完成、跨场 `final` 接力、样稿入库、场次和手机交接、局部修改范围、成员、新闻顺序、配图、开盘时区及休市处理。Claude Code 双窗口、`/compact`、连接器授权和子 Agent 实际运行须在 Windows 账号环境验收。交稿把关另跑 `node tools/hooks/delivery-gate.test.mjs`。
+在该目录 PowerShell 运行 `node tools/self-test.mjs`。它使用临时目录和独立进程验证 26 个 MCP 工具，覆盖旧记录、课程完成、跨场 `final` 接力、样稿入库、场次和手机交接、局部修改范围、成员、新闻顺序、配图、开盘时区及休市处理。Claude Code 双窗口、`/compact`、连接器授权和子 Agent 实际运行须在 Windows 账号环境验收。交稿把关另跑 `node tools/hooks/delivery-gate.test.mjs`，状态备份另跑 `node tools/backup-state.test.mjs`。
