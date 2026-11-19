@@ -133,7 +133,7 @@
 
 ## 状态备份与恢复
 
-`.westcott-state` 不进 git。`.claude/settings.json` 里的后台 Stop hook 每轮结束后运行 [backup-state.mjs](tools/backup-state.mjs)，内容有变化才生成快照，默认存到 `%LOCALAPPDATA%\Westcott\state-backups`，保留最近 60 份。每份快照带校验清单。要放进 Google Drive 等同步文件夹，把环境变量 `WESTCOTT_BACKUP_DIR` 设为该文件夹的绝对路径。
+`.westcott-state` 不进 git。`.claude/settings.json` 里的后台 Stop hook 每轮结束后运行 [backup-state.mjs](tools/backup-state.mjs)，内容有变化才生成快照，默认存到 `%LOCALAPPDATA%\Westcott\state-backups`，保留最近 60 份，另为最近 30 天每天留最后一份。每份快照带校验清单。要放进 Google Drive 等同步文件夹，把环境变量 `WESTCOTT_BACKUP_DIR` 设为该文件夹的绝对路径。
 
 ```powershell
 node tools/backup-state.mjs --list

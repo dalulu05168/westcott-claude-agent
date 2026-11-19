@@ -844,6 +844,11 @@ try {
   assert.ok(countResults[17].issues.some((issue) => issue.message.includes('节选须给出起止时刻')));
   assert.equal(countResults[18].applied, false);
   assert.equal(countResults[19].applied, false);
+  const customFull = decode(run([call(1, 'validate_scene_count', {
+    session: 'morning', start: '09:00', end: '10:20', body: sceneOf(20),
+  })])[0]);
+  assert.equal(customFull.passed, false);
+  assert.ok(customFull.issues.some((issue) => issue.message.startsWith('09:00–10:20 时段')), JSON.stringify(customFull.issues));
   const badWindows = run([
     call(1, 'validate_scene_count', { session: 'morning', scope: 'excerpt', start: '09:00', end: '08:00', body: sceneOf(5) }),
     call(2, 'validate_scene_count', { session: 'afternoon', scope: 'excerpt', start: '16:00', end: '15:00', body: sceneOf(5) }),

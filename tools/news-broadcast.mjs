@@ -167,7 +167,8 @@ export function createNewsBroadcastTools({ text, schema, dateField, validateDate
       }
       const applied = Boolean(range);
       if (range && (count < range.minimum || count > range.maximum)) {
-        const label = scope === 'excerpt' ? `${range.start}–${range.end} 节选` : '完整场次';
+        const label = scope === 'excerpt' ? `${range.start}–${range.end} 节选`
+          : start || end ? `${range.start}–${range.end} 时段` : '完整场次';
         issues.push({ message: `${label}按每 6 分钟一条应约 ${range.expected} 条（${range.minimum}–${range.maximum}），当前为 ${count} 条。` });
       }
       return { passed: issues.length === 0, session, scope, applied, count,

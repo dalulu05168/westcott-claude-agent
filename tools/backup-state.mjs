@@ -6,7 +6,7 @@
 //   node tools/backup-state.mjs --restore <快照名> --yes   执行恢复（先自动备份当前状态）
 //
 // 备份目录默认 %LOCALAPPDATA%\Westcott\state-backups，可用环境变量 WESTCOTT_BACKUP_DIR
-// 指向别处（例如 Google Drive 本地同步文件夹）。默认保留最近 60 份快照。
+// 指向别处（例如 Google Drive 本地同步文件夹）。默认保留最近 60 份快照，另为最近 30 天每天留最后一份。
 import { createHash, randomUUID } from 'node:crypto';
 import {
   copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync,
@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 const PREFIX = 'state-';
 const MANIFEST = 'manifest.json';
 export const DEFAULT_KEEP = 60;
+export const DAILY_DAYS = 30;
 
 export function defaultPaths(env = process.env) {
   const project = env.CLAUDE_PROJECT_DIR || fileURLToPath(new URL('../', import.meta.url));
@@ -79,13 +80,21 @@ export function backup({ stateDir, backupDir, keep = DEFAULT_KEEP, label = '', f
     rmSync(temp, { recursive: true, force: true });
     throw error;
   }
-  const pruned = prune(backupDir, keep);
+  const pruned = prune(backupDir, keep, now);
   return { status: 'created', name, count: files.length, pruned };
 }
 
-function prune(backupDir, keep) {
+// 保留最近 keep 份；另为最近 DAILY_DAYS 天每天保留最后一份，避免高频使用时只覆盖一两天。
+function prune(backupDir, keep, now) {
   const snapshots = listSnapshots(backupDir);
-  const old = snapshots.slice(0, Math.max(0, snapshots.length - keep));
+  const kept = new Set(snapshots.slice(-keep).map(s => s.name));
+  const cutoff = now.getTime() - DAILY_DAYS * 24 * 60 * 60 * 1000;
+  const lastOfDay = new Map();
+  for (const s of snapshots) {
+    if (Date.parse(s.created_at) >= cutoff) lastOfDay.set(s.created_at.slice(0, 10), s.name);
+  }
+  for (const name of lastOfDay.values()) kept.add(name);
+  const old = snapshots.filter(s => !kept.has(s.name));
   for (const s of old) rmSync(join(backupDir, s.name), { recursive: true, force: true });
   return old.map(s => s.name);
 }

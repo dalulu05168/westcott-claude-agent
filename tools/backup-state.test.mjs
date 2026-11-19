@@ -56,6 +56,27 @@ try {
     assert.ok(names.every(name => name > 'state-20261119-080003Z'));
   });
 
+  t('超出份数后仍为最近 30 天每天保留最后一份', () => {
+    const dayDir = join(root, 'daily-backups');
+    const day = (d, s) => new Date(Date.UTC(2026, 10, d, 8, 0, s));
+    let n = 0;
+    for (const d of [10, 11, 12]) {
+      for (let i = 0; i < 3; i++) {
+        put(`daily-${n++}.json`, { d, i });
+        backup({ stateDir, backupDir: dayDir, keep: 2, now: day(d, i) });
+      }
+    }
+    const names = listSnapshots(dayDir).map(s => s.name);
+    // 最近 2 份（12 日的后两份）+ 10、11 日各自最后一份
+    assert.deepEqual(names, [
+      'state-20261110-080002Z', 'state-20261111-080002Z', 'state-20261112-080001Z', 'state-20261112-080002Z',
+    ]);
+    // 超过 30 天的日快照不再保留
+    put('daily-late.json', { late: true });
+    backup({ stateDir, backupDir: dayDir, keep: 2, now: new Date(Date.UTC(2026, 11, 20, 8, 0, 0)) });
+    assert.ok(!listSnapshots(dayDir).some(s => s.name.startsWith('state-20261110')));
+  });
+
   t('快照被改动时校验失败', () => {
     const name = listSnapshots(backupDir).at(-1).name;
     const file = join(backupDir, name, 'agenda-000001.json');
