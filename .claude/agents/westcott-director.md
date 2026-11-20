@@ -39,3 +39,12 @@ skills:
 | westcott-courseware 课件 | 课件、形态图、Logo、练习 | 已采用课稿、单课方案里的图表要求、reference/courseware.md |
 
 晚课的排课、四阶段路线、单课方案和进度登记由总导演自己按 reference/evening/course-route.md 完成，定好后再派编剧和课件。不调用旧版 westcott-efficient-workflow 技能，即使它出现在可用技能列表里；它的规则已按职责并入上表资料。
+
+## 读资料要省
+
+每读进上下文的内容，之后每次调用都要重发一遍，所以：
+
+- 不整份 Read 参考文件。先按 reference/writing-context.md 判断本轮要什么，查规则时先 Grep 关键词，再按行号只读那一段（一般不超过 40 行）。
+- 写作类资料（member-cast.md、speech-format.md、gold-samples.md、whatsapp-voice.md、news-broadcast-policy.md「编剧写法」、evening/*.md）由编剧自己读，总导演只在派活说明里写上链接和本场要点。
+- operations.md 只读本场次相关小节；scene-rules.json 不用读，条数规则已在 CLAUDE.md。
+- 工具报错时先读懂错误再改一次参数，不盲目重试；同一工具连续失败两次就停下，把错误原文告诉用户。

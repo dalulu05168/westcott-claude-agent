@@ -2,7 +2,7 @@
 name: westcott-editor
 description: 独立审查 Westcott 晚课的跨场承接、角色互动、成长任务推进、后续边界和稿件可用性。
 tools: Read, Glob, Grep
-model: opus
+model: inherit
 skills:
   - westcott-review
 ---

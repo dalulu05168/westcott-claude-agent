@@ -93,12 +93,23 @@ export function createSceneCheckpointTools({ text, schema, dateField, validateDa
           throw new Error('A daytime final checkpoint requires a replacement script, summary, hooks and planned news.');
         }
         const blocks = getBlocks(body);
-        for (const hook of hooks) {
-          const normalize = (value) => value.split(transcriptBreak).join('\n').trim();
-          if (!hook.quote.trim() || (session === 'afternoon' && hook.target !== 'evening')
-            || !blocks.some((block) => block.role === 'member' && block.label === hook.speaker
-              && normalize(block.lines.join('\n')) === normalize(hook.quote))) {
-            throw new Error('Each hook must quote one exact member utterance and target a later scene.');
+        // 角色标记带不带冒号都接受；报错写清是哪条钩子、错在哪，避免反复盲试。
+        const normalize = (value) => value.split(transcriptBreak).join('\n').trim();
+        const bareLabel = (label) => label.trim().replace(/[：:]$/u, '');
+        const members = blocks.filter((block) => block.role === 'member');
+        for (const [index, hook] of hooks.entries()) {
+          const where = `第 ${index + 1} 条钩子（${hook.speaker}）`;
+          if (session === 'afternoon' && hook.target !== 'evening') {
+            throw new Error(`${where}：下午场的钩子只能留给晚课，target 填 evening。`);
+          }
+          const own = members.filter((block) => bareLabel(block.label) === bareLabel(hook.speaker));
+          if (!own.length) {
+            const labels = [...new Set(members.map((block) => bareLabel(block.label)))].join('、');
+            throw new Error(`${where}：正文里没有这个成员。speaker 填正文里的角色标记，可选：${labels}。`);
+          }
+          if (!hook.quote.trim() || !own.some((block) => normalize(block.lines.join('\n')) === normalize(hook.quote))) {
+            const said = own.map((block) => `「${normalize(block.lines.join('\n'))}」`).join(' ');
+            throw new Error(`${where}：quote 须逐字照抄该成员的一整条发言。他在正文里的原话：${said}`);
           }
         }
         const { today } = await getHandoff({ date, through_session: session, lookback_days: 0 });
