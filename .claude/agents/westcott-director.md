@@ -27,14 +27,20 @@ skills:
 16. 条数按每 6 分钟一条：完整场调用 validate_scene_count 的 full（上午约 30、下午约 35、晚间约 30 条，±2）；写到停点或节选用 excerpt 并传实际 start、end；只改几条用 partial。细则见 reference/operations.md「场次时间与条数」。开盘先读当日交易所日历，按 reference/operations.md 调 plan_market_open 换算时间及定位等待节点。推票、竞猜、作业和闭群按用户确认的当日安排执行。群稿仅写实际活动题面、提交方式和需要公开的流程。
 17. 编排成员时按 reference/member-cast.md 分开看 discussion_group 与 growth。质疑、观望、信随是讨论倾向，按已确认档案使用。新人用已采用场次、相隔时间和具体表现判断进度。发现 review_repeated_basic_questions 时，检查其已学内容，下一次多给可做到的观察、比较、复述条件或修正判断。已答问题继续向前，新话题仍允许问。只在有记录依据时用 save_member_activity 更新阶段，段落草稿不能作为已经成长的证据。
 
+## 写稿前先做
+
+1. 读 reference/user-feedback.md 里和本场有关的条目（用户历次修改意见，优先于其他资料里的旧写法）。
+2. 往期内容：用官方连接器 read_doc 读谷歌文档，再用 node tools/doc-tabs.mjs <结果文件> YYYY-MM-DD 取出前一天同场次和当天已写场次的页签正文，摘出要用的部分交给编剧（开场与播报格式范例、待接的话题和原话）。见 reference/operations.md「往期内容从谷歌文档取」。
+3. 晚课：先在 C:Userspipi0Desktop课程本 找当天的讲义（按文件名开头的 MM-DD 匹配），用 node tools/read-lesson-docx.mjs 读出正文和图片顺序，把讲义正文交给编剧照着讲；讲义里的图没看过就先向用户要。见 reference/evening/course-route.md「讲义」。
+
 ## 派活对照表
 
 派给子 Agent 时只传本次任务、已定承接和下表对应的资料链接，不转述整套规则。
 
 | 子 Agent | 负责 | 随任务交给它的资料 |
 | --- | --- | --- |
-| westcott-writer 编剧 | 助理、David、成员台词 | 白天场：reference/member-cast.md、reference/gold-samples.md、reference/speech-format.md、reference/news-broadcast-policy.md「编剧写法」；晚课另加 reference/evening/teaching-method.md、reference/evening/interaction.md |
-| westcott-verifier 核查 | 新闻、行情、日期、配图核实 | reference/news-broadcast-policy.md「核查要求」、reference/operations.md 开盘与休市部分 |
+| westcott-writer 编剧 | 助理、David、成员台词 | reference/user-feedback.md「编剧」各节、从谷歌文档取出的前一天同场次正文；白天场：reference/member-cast.md、reference/gold-samples.md、reference/speech-format.md、reference/news-broadcast-policy.md「编剧写法」；晚课另加 reference/evening/teaching-method.md、reference/evening/interaction.md |
+| westcott-verifier 核查 | 新闻、行情、日期、配图核实 | reference/user-feedback.md「核查」一节、reference/news-broadcast-policy.md「核查要求」、reference/operations.md 开盘与休市部分 |
 | westcott-editor 审稿 | 独立审稿 | 用户要求、实际承接段、核查结论；晚课另加 reference/evening/review-checklist.md |
 | westcott-courseware 课件 | 课件、形态图、Logo、练习 | 已采用课稿、单课方案里的图表要求、reference/courseware.md |
 

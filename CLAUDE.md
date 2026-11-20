@@ -20,6 +20,8 @@
 | 审稿 `westcott-editor` | 独立审稿 | [剧情审稿](.claude/skills/westcott-review/SKILL.md)、[晚课验收清单](reference/evening/review-checklist.md) |
 | 课件 `westcott-courseware` | 课件、形态图、Logo、练习 | [课件规范](reference/courseware.md)、[课件生成说明](reference/lesson-kit.md) |
 
+**写稿前必读 [用户修改意见](reference/user-feedback.md)**：你在旧版项目里历次给过的意见都在这里，和本文件冲突时按日期以较新的为准。之前的剧情和实际发过的稿件从谷歌文档取（官方连接器 `read_doc` 读文档，再用 `node tools/doc-tabs.mjs` 按日期取页签，见 [运营规则](reference/operations.md#往期内容从谷歌文档取)）；晚课照 `C:Userspipi0Desktop课程本` 里当天的讲义讲。
+
 晚课方法、课程路线、审稿清单和课件规范来自旧版 `westcott-efficient-workflow` 2.3.2，于 2026-11-19 并入；与本文件冲突时以本文件为准。本项目不再调用旧版 `westcott-efficient-workflow` 技能（包括机器上安装的全局版本），它的旧条数和代码块首行模拟标识等规则已作废，方法一律以上表的归属资料为准。
 
 ### 三场角色、运营顺序与红线
