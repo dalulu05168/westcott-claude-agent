@@ -22,7 +22,7 @@ function call(name, input, value, { error = false } = {}) {
 }
 const report = passed => ({ passed, issues: passed ? [] : [{ message: '测试未通过' }] });
 const validation = (name, text = body, passed = true, options = {}) => call(`${S}${name}`, { body: text, ...(name === 'validate_speech_format' ? { strict_layout: true } : {}) }, report(passed), options);
-const agent = (subagent_type, result) => call('Agent', { subagent_type, prompt: '本轮稿件' }, result);
+const agent = (subagent_type, result, options) => call('Agent', { subagent_type, prompt: '本轮稿件' }, result, options);
 function fullChecks(text = body) {
   return [
     ...validation('validate_speech_format', text),
@@ -73,7 +73,7 @@ t('工具调用报错即使有内容也阻止', () => {
 });
 t('工具调用没有配对结果时阻止', () => {
   const [unanswered] = call(`${S}validate_speech_format`, { body, strict_layout: true }, report(true));
-  const checks = [...unanswered, ...validation('validate_whatsapp_voice'), ...agent('westcott-editor', '通过')];
+  const checks = [unanswered, ...validation('validate_whatsapp_voice'), ...agent('westcott-editor', '通过')];
   const result = evaluate([user('写下午场'), ...checks, say(block(body))]);
   assert.equal(result.action, 'block');
   assert.match(result.reason, /没有返回结果/);
