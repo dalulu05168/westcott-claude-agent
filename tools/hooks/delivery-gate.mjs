@@ -86,6 +86,10 @@ export function evaluate(entries, { stopHookActive = false } = {}) {
   if (countSpeeches(delivered) >= FULL_SCENE_MIN_SPEECHES && !called('validate_scene_count').length) {
     missing.push('10 条及以上的群稿未运行 validate_scene_count（节选须传 start、end）');
   }
+  if (countSpeeches(delivered) >= FULL_SCENE_MIN_SPEECHES
+    && !tools.some(t => t.name === 'Agent' && t.input.subagent_type === 'westcott-writer')) {
+    missing.push('群稿未由编剧 westcott-writer 动笔，总导演不自己写整段台词');
+  }
   const reviewed = tools.some(t => t.name === 'Agent' && t.input.subagent_type === 'westcott-editor');
   if (!reviewed) missing.push('未调用 westcott-editor 独立审稿');
 

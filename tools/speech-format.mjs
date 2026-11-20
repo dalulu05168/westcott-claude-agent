@@ -7,9 +7,11 @@ const rolePattern = /^(={3,}\s*([^=]+?)\s*={3,})(?:[ \t]*(\S.*))?$/u;
 const teacherName = /^(?:David(?:\s*Miller)?(?:\s*(?:先生|老[师師]))?|大[卫衛](?:\s*(?:先生|老[师師]))?|先生|老[师師]|教[师師]|[讲講][师師]|teacher)$/iu;
 const teacherPrefix = /^([^：:]{1,32}[：:])\s*(.*)$/u;
 const memberPattern = /^((\d{1,3})\s*([男女])(?:\s+[\p{Script=Latin}][\p{Script=Latin}\p{M} .'-]{0,30})?\s*[:：])\s*(.*)$/u;
-const headlinePattern = /^(\p{Regional_Indicator}{2})[ \t]+([^｜|\n]{1,24})财经新闻｜(\S[^\n]*)$/u;
+const headlinePattern = /^(\p{Regional_Indicator}{2}|🌍)[ \t]+([^｜|\n]{1,24})财经新闻｜(\S[^\n]*)$/u;
 const newsLike = /^(?:\p{Regional_Indicator}{2}\s*)?[^｜|\n]{0,24}财经(?:新闻|资讯快报|快报)[｜|]/u;
-const countryFlags = { '🇷🇴': '罗马尼亚', '🇺🇸': '美国' };
+const countryFlags = { '🇷🇴': '罗马尼亚', '🇺🇸': '美国', '🌍': '国际' };
+// 找不到已核事件图时，配图行写「待补」占位，稿外列出待补清单。
+const pendingImage = '待补';
 export const pictureFooter = /^配图[：:]\s*(\S+)$/;
 export const transcriptBreak = /\r\n|[\r\n\v\u2028\u2029]/u;
 
@@ -140,8 +142,11 @@ function validateSpeechFormat({ body, mode = 'mixed', expected_image_urls, expec
       newsCount += 1;
       const lines = block.lines.join('\n').trimEnd().split('\n');
       const footer = pictureFooter.exec(lines.at(-1)?.trim() || '');
-      const image = footer && publicWebUrl(footer[1]);
-      if (!image) issues.push({ line: block.line, message: '新闻下方需要一行「配图：」加可打开的事件图片直链。' });
+      const pending = footer?.[1] === pendingImage;
+      const image = footer && !pending && publicWebUrl(footer[1]);
+      if (!image && !pending) {
+        issues.push({ line: block.line, message: '新闻下方需要一行「配图：」加可打开的事件图片直链；暂时没有已核图片时写「配图：待补」。' });
+      }
       if (expected_image_urls && image !== publicWebUrl(expected_image_urls[newsCount - 1])) {
         issues.push({ line: block.line, message: '新闻下方的配图链接与该条已核图片不一致。' });
       }

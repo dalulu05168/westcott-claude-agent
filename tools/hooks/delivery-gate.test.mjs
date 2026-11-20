@@ -15,7 +15,9 @@ const toolResult = () => ({ type: 'user', message: { role: 'user', content: [{ t
 const use = (name, input = {}) => ({ type: 'assistant', message: { content: [{ type: 'tool_use', id: 'x', name, input }] } });
 const say = text => ({ type: 'assistant', message: { content: [{ type: 'text', text }] } });
 const editor = () => use('Agent', { subagent_type: 'westcott-editor', prompt: '审稿' });
+const writer = () => use('Agent', { subagent_type: 'westcott-writer', prompt: '写' });
 const fullChecks = (b = body) => [
+  writer(), toolResult(),
   use(`${S}validate_speech_format`, { body: b, strict_layout: true }), toolResult(),
   use(`${S}validate_whatsapp_voice`, { body: b }), toolResult(),
   editor(), toolResult(),
@@ -75,6 +77,16 @@ t('上午写到 10:20 停点的 13 条稿缺条数校验时阻止', () => {
 t('9 条以下的短片段不要求条数校验', () => {
   const short = Array.from({ length: 9 }, (_, i) => `${String(i + 1).padStart(2, '0')}男：\n第${i + 1}条`).join('\n');
   assert.equal(evaluate([user('改这几条'), ...fullChecks(short), say(`\`\`\`text\n${short}\n\`\`\``)]).action, 'allow');
+});
+t('10 条及以上群稿未由编剧动笔时阻止', () => {
+  const scene = Array.from({ length: 12 }, (_, i) => `${String(i + 1).padStart(2, '0')}男：\n第${i + 1}条`).join('\n');
+  const checks = [...fullChecks(scene).slice(2), use('mcp__westcott-state__validate_scene_count', { body: scene })];
+  const noWriter = evaluate([user('写上午场'), ...checks, say(`\`\`\`text\n${scene}\n\`\`\``)]);
+  assert.equal(noWriter.action, 'block');
+  assert.match(noWriter.reason, /westcott-writer/);
+  const withWriter = evaluate([user('写上午场'), use('Agent', { subagent_type: 'westcott-writer', prompt: '写' }), ...checks,
+    say(`\`\`\`text\n${scene}\n\`\`\``)]);
+  assert.equal(withWriter.action, 'allow');
 });
 t('15 条局部稿缺条数校验时阻止', () => {
   const mid = Array.from({ length: 15 }, (_, i) => `${String(i + 1).padStart(2, '0')}男：\n第${i + 1}条`).join('\n');

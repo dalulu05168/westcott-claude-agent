@@ -116,8 +116,11 @@ function inspectVoice({ body, mode = 'dialogue' }) {
       issue(block, 'review', 'hype_emoji', '检查这里的表情是否给价量观察加上了不必要的炒作意味。');
     }
     const length = (message.match(/\p{Script=Han}/gu)?.length ?? 0) + (message.match(/\b[\p{Script=Latin}\d]+\b/gu)?.length ?? 0);
-    if (length > 60) {
-      issue(block, 'review', 'member_length', '这条较长，请按人物语境核对聊天感。');
+    if (length > 35) {
+      issue(block, 'review', 'member_length', '成员默认一句短话，这条超过 35 字，检查能否缩短成对眼前数字的一句反应。');
+    }
+    if (/^(?:就是|也就是|意思是|指的是|说白了|简单说)|(?:的意思是|指的是)/u.test(message.trim())) {
+      issue(block, 'review', 'member_explains', '成员之间不讲课：解释概念的话留给助理一句带过，成员改成追问或对数字的反应。');
     }
   }
   if (praiseBlocks.length) issue(praiseBlocks[0], praiseBlocks.length >= 3 ? 'block' : 'review', 'praise',
